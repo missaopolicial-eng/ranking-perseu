@@ -1,0 +1,434 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><style>html,body{margin:0;padding:0;background:#0c0b09}</style></head><body><title>Ranking Perseu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Krona+One&family=Montserrat:wght@600&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: arena escura de quartel, placa de bronze no topo, pódio com brasões, grade de fichas por aluno */
+:root{
+  color-scheme: dark;
+  --bg:#0c0b09; --bg2:#14120e; --card:#1a1712; --card2:#221e17; --line:#2f2a20;
+  --fg:#f3ecdd; --muted:#a59a83; --dim:#6d6554;
+  --gold:#d6ac4c; --gold-hi:#f4d27c; --gold-lo:#8a6a24;
+  --silver:#c9cdd3; --bronze:#c4814a;
+  --up:#5fcf8a; --down:#e0645a; --steel:#7ea6d9;
+  --f-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-num:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* ---------- topo ---------- */
+.hero{position:relative;text-align:center;padding-block:44px 28px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-40% -20% auto;height:520px;background:radial-gradient(closest-side,rgba(214,172,76,.22),transparent 70%);pointer-events:none}
+.logo{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;margin:0 auto 26px;width:min(420px,100%)}
+.logo-art{width:clamp(96px,26vw,140px);height:auto;filter:drop-shadow(0 8px 26px rgba(214,172,76,.35))}
+.logo-msp{font-family:"Krona One","Arial Black",sans-serif;font-size:clamp(44px,12vw,78px);line-height:.95;letter-spacing:.04em;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+.logo-sub{font-family:"Montserrat",var(--f-body);font-weight:600;font-size:clamp(10px,2.6vw,14px);letter-spacing:.42em;text-transform:uppercase;color:#fff;padding-left:.42em}
+.logo-rule{display:flex;align-items:center;gap:10px;width:100%;margin-top:6px}
+.logo-rule span{flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold-hi) 70%,var(--gold));border-radius:2px}
+.logo-rule span:last-child{background:linear-gradient(90deg,var(--gold),var(--gold-hi) 30%,var(--gold) 70%,transparent)}
+.logo-rule svg{width:22px;height:22px;flex:none;filter:drop-shadow(0 0 8px rgba(244,210,124,.5))}
+.eyebrow{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:700}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(48px,11vw,104px);line-height:.9;letter-spacing:.01em;margin:8px 0 18px;text-transform:uppercase;text-wrap:balance;
+  background:linear-gradient(180deg,#fff7e2 0%,var(--gold-hi) 45%,var(--gold) 75%,var(--gold-lo) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.periodo{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--gold-lo);border-radius:999px;padding:6px 18px;font-family:var(--f-num);font-size:15px;color:var(--gold-hi);background:rgba(214,172,76,.06)}
+.upd{margin-top:12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.live{width:8px;height:8px;border-radius:50%;background:var(--down);box-shadow:0 0 0 0 rgba(224,100,90,.6);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(224,100,90,0)}100%{box-shadow:0 0 0 0 rgba(224,100,90,0)}}
+.timer{margin:14px auto 0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.timer .tl{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.timer #cd{font-size:28px;font-weight:600;color:var(--gold-hi);letter-spacing:.06em}
+.timer.busy #cd{font-size:16px;letter-spacing:.02em;color:var(--fg)}
+.tabs{display:inline-flex;gap:4px;margin-top:20px;padding:4px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
+.tabs button{all:unset;cursor:pointer;padding:8px 18px;border-radius:9px;font-weight:600;font-size:14px;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--card2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--gold-lo)}
+.tabs button:focus-visible,.btn:focus-visible,.card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- pódio ---------- */
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:14px;max-width:760px;margin:30px auto 0}
+.pod{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.pod .shield{width:62px;height:72px;margin-bottom:8px}
+.pod.p1 .shield{width:80px;height:92px}
+.pod .nm{font-weight:700;font-size:16px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .pts{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1}
+.pod.p1 .pts{font-size:58px;color:var(--gold-hi)}
+.pod .pts small{font-family:var(--f-body);font-size:13px;font-weight:600;color:var(--muted);margin-left:3px}
+.pod .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.pod .chips{margin-top:8px;justify-content:center}
+.step{width:100%;margin-top:14px;border-radius:12px 12px 0 0;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;color:rgba(255,255,255,.9);
+  background:linear-gradient(180deg,var(--card2),var(--bg2));border:1px solid var(--line);border-bottom:none}
+.p1 .step{height:150px;font-size:96px;background:linear-gradient(180deg,#5a4519 0%,#2b2210 100%);border-color:var(--gold-lo);color:var(--gold-hi)}
+.p2 .step{height:110px;font-size:72px}
+.p3 .step{height:84px;font-size:60px}
+.largada{max-width:640px;margin:28px auto 0;text-align:center;padding:16px 20px;border:1px solid var(--gold-lo);border-radius:14px;background:rgba(214,172,76,.07);color:var(--muted);font-size:14px}
+.largada b{color:var(--gold-hi)}
+.podium-empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:30px 0}
+
+/* ---------- busca ---------- */
+.search{display:flex;justify-content:center;margin:34px 0 22px}
+.search label{position:relative;width:min(520px,100%)}
+.search input{width:100%;font:inherit;color:var(--fg);background:var(--bg2);border:1.5px solid var(--gold-lo);border-radius:999px;padding:13px 18px 13px 46px;outline:none}
+.search input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(214,172,76,.15)}
+.search svg{position:absolute;left:17px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--gold)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:12px;color:var(--muted);margin-bottom:22px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+/* ---------- fichas ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;cursor:pointer;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--gold-lo)}
+.card.hit{border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,172,76,.25);transform:translateY(-2px)}
+.card.top10{background:linear-gradient(160deg,var(--card2),var(--card))}
+.card .pos{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1;display:flex;align-items:baseline;gap:8px}
+.card .pos sup{font-size:12px}
+.d{font-family:var(--f-num);font-size:11px;font-weight:600}
+.d.up{color:var(--up)}.d.down{color:var(--down)}.d.eq{color:var(--dim)}.d.new{color:var(--steel)}
+.card .pts{grid-row:span 2;align-self:center;text-align:right;font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1}
+.card .pts small{display:block;font-family:var(--f-body);font-size:11px;color:var(--muted);font-weight:600}
+.card .nm{font-weight:700;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .row{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.card .info{font-size:12px;color:var(--muted)}
+.card .det{grid-column:1/-1;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.card .det b{color:var(--fg);font-weight:600}
+
+.chips{display:flex;gap:4px}
+.chip{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:700;font-family:var(--f-num)}
+.chip.M{background:var(--gold);color:#1b1407}
+.chip.E{background:rgba(214,172,76,.18);color:var(--gold-hi);box-shadow:inset 0 0 0 1px var(--gold-lo)}
+.chip.Q{background:rgba(126,166,217,.16);color:var(--steel);box-shadow:inset 0 0 0 1px rgba(126,166,217,.4)}
+.chip.X{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 1px var(--line)}
+.chip.F{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 1px dashed var(--line);opacity:.5}
+
+.more{display:flex;justify-content:center;margin-top:20px}
+.btn{all:unset;cursor:pointer;padding:12px 26px;border-radius:999px;font-weight:700;background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:#1b1407}
+.btn.ghost{background:none;color:var(--gold-hi);box-shadow:inset 0 0 0 1.5px var(--gold-lo)}
+.notfound{text-align:center;color:var(--muted);font-size:14px;margin-top:22px}
+.notfound b{color:var(--fg)}
+.devendo{margin-top:44px;border:1px solid rgba(224,100,90,.35);background:linear-gradient(180deg,rgba(224,100,90,.08),rgba(224,100,90,.02));border-radius:20px;padding:24px 20px}
+.devendo h2{margin:0 0 4px;font-family:var(--f-display);font-weight:800;font-size:clamp(26px,6vw,34px);letter-spacing:.02em;text-transform:uppercase;color:var(--fg)}
+.devendo h2 span{color:var(--down)}
+.devendo .sub{margin:0 0 16px;color:var(--muted);font-size:14px}
+.devendo ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.devendo li{padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px}
+.devendo .zero{color:var(--up);font-weight:600}
+.empty{text-align:center;padding:40px 20px;border:1px dashed var(--line);border-radius:16px;color:var(--muted)}
+.empty b{color:var(--fg)}
+
+/* ---------- regras ---------- */
+section.rules{margin-top:72px}
+h2{font-family:var(--f-display);font-weight:900;font-size:clamp(36px,6vw,56px);text-transform:uppercase;line-height:1;margin:0 0 12px;letter-spacing:.01em}
+.lead{max-width:68ch;color:var(--muted);margin:0 0 24px}
+.lead b{color:var(--fg)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.pcard .v{font-family:var(--f-display);font-weight:900;font-size:34px;line-height:1;color:var(--gold-hi)}
+.pcard .t{font-weight:700;margin-top:6px}
+.pcard p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.group{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:28px 0 10px}
+.faq{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:40px}
+.faq div{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.faq h3{margin:0 0 6px;font-size:16px}
+.faq p{margin:0;font-size:14px;color:var(--muted)}
+.times{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.times span{font-family:var(--f-num);border:1px solid var(--gold-lo);border-radius:10px;padding:8px 16px;color:var(--gold-hi);font-size:18px}
+footer{margin-top:56px;text-align:center;font-size:12px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+
+@media (max-width:560px){
+  .podium{gap:8px}
+  .pod .nm{font-size:13px}
+  .pod .pts{font-size:32px}.pod.p1 .pts{font-size:42px}
+  .pod .shield{width:46px;height:54px}.pod.p1 .shield{width:60px;height:70px}
+  .p1 .step{height:110px;font-size:64px}.p2 .step{height:80px;font-size:48px}.p3 .step{height:62px;font-size:40px}
+  .pod .chips .chip{width:14px;height:14px;font-size:0;border-radius:4px}
+  .pod .chips{gap:2px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1c2"/><stop offset=".5" stop-color="#d6ac4c"/><stop offset="1" stop-color="#7a5a1a"/></linearGradient>
+    <linearGradient id="g-silver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#b9bec6"/><stop offset="1" stop-color="#5d636c"/></linearGradient>
+    <linearGradient id="g-bronze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd2a8"/><stop offset=".5" stop-color="#c4814a"/><stop offset="1" stop-color="#6b3b17"/></linearGradient>
+    <symbol id="shield" viewBox="0 0 84 96"><path d="M42 2 80 14v30c0 24-16 41-38 50C20 85 4 68 4 44V14L42 2Z"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="logo" role="img" aria-label="Projeto Perseu">
+      <svg class="logo-art" viewBox="0 0 130 120" aria-hidden="true">
+        <defs><linearGradient id="g-per" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1c2"/><stop offset=".55" stop-color="#d6ac4c"/><stop offset="1" stop-color="#7a5a1a"/></linearGradient></defs>
+        <path d="M30 34C40 8 86 0 112 26c5 6 6 15 1 22-6-18-26-28-48-27-14 1-26 6-35 13z" fill="url(#g-per)"/>
+        <path d="M44 22c8-6 20-9 32-8M58 13c10-1 22 1 32 6M74 8c10 2 20 7 27 14" stroke="#0c0b09" stroke-width="2" fill="none" opacity=".45"/>
+        <path d="M100 104c7-20 7-48-9-64-12-12-36-16-52-6-11 6-15 16-15 26v26c0 8 6 14 14 16h8V82h8v24c14 3 32 3 46-2z" fill="url(#g-per)"/>
+        <path d="M23 62h36c4 0 6 4 4 8l-17 3v9h-8V70H23z" fill="#0c0b09"/>
+        <path d="M74 60c10-10 26-14 44-11-10 3-17 7-21 11 8-2 15-1 21 3-9 0-17 2-23 6 6 0 11 2 15 6-12-2-26-4-36-15z" fill="url(#g-per)" stroke="#0c0b09" stroke-width="1.5"/>
+      </svg>
+      <div class="logo-msp">PERSEU</div>
+      <div class="logo-sub">Projeto Perseu</div>
+      <div class="logo-rule" aria-hidden="true">
+        <span></span>
+        <svg viewBox="0 0 24 24"><path d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z" fill="url(#g-gold)"/></svg>
+        <span></span>
+      </div>
+    </div>
+    <h1>Ranking Semanal</h1>
+    <div class="periodo num" id="periodo">—</div>
+    <div class="upd"><span class="live" aria-hidden="true"></span><span id="upd">Aguardando a primeira leitura</span></div>
+    <div class="timer" aria-live="off"><span class="tl" id="cd-label">Próxima atualização em</span><span class="num" id="cd">--:--:--</span></div>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-semana" aria-selected="true">Semana</button>
+      <button role="tab" id="tab-ontem" aria-selected="false">Ontem</button>
+    </div>
+  </header>
+
+  <div class="largada" id="largada" hidden>
+    <b>Largada da semana.</b> Todos os alunos ativos da mentoria começam com 0 ponto. Os pontos entram na próxima leitura, às <span id="larg-h">20:00</span>. Estude 30 minutos líquidos ou faça 20 questões para pontuar.
+  </div>
+  <div class="podium" id="podium"></div>
+
+  <div class="search">
+    <label for="q">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Encontrar meu nome" autocomplete="off" aria-label="Encontrar meu nome">
+    </label>
+  </div>
+  <div class="legend" id="legend">
+    <span><i class="chip M">S</i>Bateu a meta</span>
+    <span><i class="chip E">S</i>Estudou 30 min</span>
+    <span><i class="chip Q">S</i>Só questões</span>
+    <span><i class="chip X">✕</i>Não pontuou</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="more" id="more" hidden><button class="btn ghost" id="btn-more">Ver ranking completo</button></div>
+  <p class="notfound" id="nf"><b>Não está aqui?</b> Registre 30 minutos de estudo hoje e você entra na próxima leitura, às <span id="prox">—</span>.</p>
+
+  <section class="devendo" id="devendo" hidden aria-labelledby="dev-t">
+    <h2 id="dev-t">Devendo a <span>meta</span></h2>
+    <p class="sub" id="dev-sub"></p>
+    <ul id="dev-list"></ul>
+  </section>
+
+  <section class="rules" aria-labelledby="como">
+    <h2 id="como">Como pontua</h2>
+    <p class="lead">Cada dia vale até <b>37 pontos</b>. Aparecer todo dia garante a base: cinco dias com 30 minutos de estudo e 20 questões já somam <b>75 pontos</b>, mais <b>5</b> de constância. Quem bate a meta e vai longe nas questões sobe mais rápido. Só conta <b>hora líquida</b>, a que foi cronometrada ou lançada com o tempo de estudo. Meta marcada como feita sem tempo registrado não pontua.</p>
+
+    <div class="group">Estudo diário</div>
+    <div class="pgrid">
+      <div class="pcard"><div class="v">+10</div><div class="t">Estudou no dia</div><p>30 minutos líquidos ou mais: cronômetro, Pomodoro ou lançamento manual com tempo.</p></div>
+      <div class="pcard"><div class="v">+5</div><div class="t">Bateu a meta</div><p>As horas líquidas do dia chegaram na meta diária do seu plano de estudos.</p></div>
+    </div>
+
+    <div class="group">Questões no dia (cumulativo)</div>
+    <div class="pgrid">
+      <div class="pcard"><div class="v">+5</div><div class="t">20 questões</div><p>Resolveu 20 ou mais no dia. Total: 5 pontos.</p></div>
+      <div class="pcard"><div class="v">+3</div><div class="t">50 questões</div><p>Bônus a partir de 50 no dia. Total: 8 pontos.</p></div>
+      <div class="pcard"><div class="v">+3</div><div class="t">100 questões</div><p>Mais um bônus a partir de 100. Total: 11 pontos.</p></div>
+      <div class="pcard"><div class="v">+4</div><div class="t">200 questões</div><p>O bônus máximo, para quem faz 200 ou mais. Total: 15 pontos.</p></div>
+    </div>
+
+    <div class="group">Taxa de acertos no dia</div>
+    <div class="pgrid">
+      <div class="pcard"><div class="v">+3</div><div class="t">70% ou mais</div><p>Vale a maior faixa do dia. Exige pelo menos 20 questões.</p></div>
+      <div class="pcard"><div class="v">+5</div><div class="t">80% ou mais</div><p>Vale a maior faixa do dia. Exige pelo menos 20 questões.</p></div>
+      <div class="pcard"><div class="v">+7</div><div class="t">90% ou mais</div><p>Vale a maior faixa do dia. Exige pelo menos 20 questões.</p></div>
+    </div>
+
+    <div class="group">Constância semanal</div>
+    <div class="pgrid">
+      <div class="pcard"><div class="v">+5</div><div class="t">5 dias</div><p>Pontuou em 5 dias da semana.</p></div>
+      <div class="pcard"><div class="v">+8</div><div class="t">6 dias</div><p>Pontuou em 6 dias da semana.</p></div>
+      <div class="pcard"><div class="v">+10</div><div class="t">7 dias</div><p>Semana completa. Vale só a maior faixa.</p></div>
+    </div>
+
+    <div class="faq">
+      <div><h3>Empatou?</h3><p>Fica na frente quem estudou mais dias. Se ainda empatar, quem registrou mais questões. Por isso cada ficha mostra os dias e as questões.</p></div>
+      <div><h3>Estudei e as horas não contaram</h3><p>O ranking só lê horas líquidas: cronômetro, Pomodoro ou lançamento manual de tempo na plataforma. Dar check na meta sem registrar o tempo não vale.</p></div>
+      <div><h3>Esqueci de lançar o estudo de ontem</h3><p>Lance assim que lembrar. O ranking lê o total de horas líquidas e de questões da plataforma, então o que for lançado depois conta no dia da leitura em que apareceu.</p></div>
+      <div><h3>Não achei meu nome</h3><p>Só aparece quem pontuou no período. Todo aluno ativo da mentoria entra no jogo: registrou 30 minutos, você aparece na próxima leitura. Busque pelo primeiro nome ou pelo nome do meio. Se você usa apelido na plataforma, procure por ele.</p></div>
+    </div>
+
+    <h2 style="margin-top:56px">Quando atualiza</h2>
+    <p class="lead">Duas leituras por dia, no horário de Brasília. Os pontos da semana zeram toda segunda-feira.</p>
+    <div class="times" id="times"><span>12:00</span><span>20:00</span></div>
+  </section>
+
+  <footer>Projeto Perseu · Dados da plataforma Tutory</footer>
+</div>
+
+<script>
+const DATA = {"semana": {"ini": "2026-11-09", "fim": "2026-11-15", "dias": ["2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15"]}, "ontem": "2026-11-08", "hoje": "2026-11-09", "atualizado": "2026-11-09T22:00:49-03:00", "proxima": "2026-11-10T12:00:00-03:00", "leituras": 1, "horarios": [12, 20], "largada": false, "ranking_semana": [{"id": "michelearaujo.felipe@gmail.com", "nome": "Michele A.", "busca": "michele aniceto", "pts": 28, "dias": 1, "questoes": 110, "horas_min": 60, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 11, "acertos": 7, "constancia": 0}, "pos": 1, "delta": 0}, {"id": "yasmimgoncalves6906@gmail.com", "nome": "Yasmim G.", "busca": "yasmim goncalves", "pts": 25, "dias": 1, "questoes": 52, "horas_min": 212, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 8, "acertos": 7, "constancia": 0}, "pos": 2, "delta": null}, {"id": "renatachele@gmail.com", "nome": "Renata M.", "busca": "renata michele", "pts": 23, "dias": 1, "questoes": 50, "horas_min": 180, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 8, "acertos": 0, "constancia": 0}, "pos": 3, "delta": -1}, {"id": "gideaovieira5@gmail.com", "nome": "Gideão V.", "busca": "gideao vieira", "pts": 23, "dias": 1, "questoes": 35, "horas_min": 139, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 5, "acertos": 3, "constancia": 0}, "pos": 4, "delta": -1}, {"id": "aspaguiar.inf@gmail.com", "nome": "Gabriel A.", "busca": "gabriel aguiar", "pts": 23, "dias": 1, "questoes": 26, "horas_min": 350, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 5, "acertos": 3, "constancia": 0}, "pos": 5, "delta": null}, {"id": "alice2003.gf@gmail.com", "nome": "Alice", "busca": "alice", "pts": 21, "dias": 1, "questoes": 60, "horas_min": 84, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 8, "acertos": 3, "constancia": 0}, "pos": 6, "delta": -2}, {"id": "amandagiovanna2019@gmail.com", "nome": "Amanda G.", "busca": "amanda giovanna", "pts": 15, "dias": 1, "questoes": 15, "horas_min": 120, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 7, "delta": null}, {"id": "lipeleonardopb3@gmail.com", "nome": "Fellipe L.", "busca": "fellipe leonardo", "pts": 15, "dias": 1, "questoes": 9, "horas_min": 240, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 8, "delta": null}, {"id": "vitoriamatozo5@gmail.com", "nome": "Vitoria Regina A.", "busca": "vitoria regina matozo de camargo arao", "pts": 15, "dias": 1, "questoes": 9, "horas_min": 120, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 9, "delta": null}, {"id": "giovana.danielli@hotmail.com", "nome": "Giovana O.", "busca": "giovana de olivio", "pts": 15, "dias": 1, "questoes": 0, "horas_min": 210, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 10, "delta": null}, {"id": "mabymayla3029@gmail.com", "nome": "Mábylla M.", "busca": "mabylla mayla", "pts": 15, "dias": 1, "questoes": 0, "horas_min": 120, "status": ["M", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 5, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 11, "delta": -6}, {"id": "meusestudosvick@gmail.com", "nome": "Victoria L.", "busca": "victoria lima", "pts": 14, "dias": 0, "questoes": 115, "horas_min": 0, "status": ["Q", "", "", "", "", "", ""], "detalhe": {"estudo": 0, "meta": 0, "questoes": 11, "acertos": 3, "constancia": 0}, "pos": 12, "delta": -6}, {"id": "francinaras01@gmail.com", "nome": "Francinara S.", "busca": "francinara silva", "pts": 12, "dias": 0, "questoes": 40, "horas_min": 0, "status": ["Q", "", "", "", "", "", ""], "detalhe": {"estudo": 0, "meta": 0, "questoes": 5, "acertos": 7, "constancia": 0}, "pos": 13, "delta": -6}, {"id": "babisantos0411@gmail.com", "nome": "Bárbara Karine S.", "busca": "barbara karine de paiva santos", "pts": 10, "dias": 1, "questoes": 15, "horas_min": 139, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 14, "delta": null}, {"id": "jonathasnovim@gmail.com", "nome": "Jonathas", "busca": "jonathas", "pts": 10, "dias": 1, "questoes": 15, "horas_min": 33, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 15, "delta": null}, {"id": "leekanashiiro@gmail.com", "nome": "Lee Siler M.", "busca": "lee siler kanashiro martins", "pts": 10, "dias": 1, "questoes": 12, "horas_min": 60, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 16, "delta": null}, {"id": "dralauracborges@gmail.com", "nome": "Laura Costa B.", "busca": "laura costa borges", "pts": 10, "dias": 1, "questoes": 5, "horas_min": 82, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 17, "delta": null}, {"id": "barbosathais98@gmail.com", "nome": "Thais Barbosa N.", "busca": "thais barbosa do nascimento", "pts": 10, "dias": 1, "questoes": 2, "horas_min": 138, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 18, "delta": null}, {"id": "letferreirinha2@gmail.com", "nome": "Leticia Ferreira L.", "busca": "leticia ferreira lima", "pts": 10, "dias": 1, "questoes": 0, "horas_min": 116, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 19, "delta": null}, {"id": "lorena6789silva@gmail.com", "nome": "Lorena S.", "busca": "lorena silva", "pts": 10, "dias": 1, "questoes": 0, "horas_min": 128, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 20, "delta": null}, {"id": "miqueiasrocha368@gmail.com", "nome": "Miquéias Rocha C.", "busca": "miqueias rocha de sousa carvalho", "pts": 10, "dias": 1, "questoes": 0, "horas_min": 40, "status": ["E", "", "", "", "", "", ""], "detalhe": {"estudo": 10, "meta": 0, "questoes": 0, "acertos": 0, "constancia": 0}, "pos": 21, "delta": null}], "ranking_ontem": [{"id": "gideaovieira5@gmail.com", "nome": "Gideão V.", "busca": "gideao vieira", "pts": 23, "dias": 1, "questoes": 61, "horas_min": 90, "status": ["E"], "detalhe": {"estudo": 10, "meta": 0, "questoes": 8, "acertos": 5, "constancia": 0}, "pos": 1, "delta": null}, {"id": "francinaras01@gmail.com", "nome": "Francinara S.", "busca": "francinara silva", "pts": 15, "dias": 0, "questoes": 70, "horas_min": 0, "status": ["Q"], "detalhe": {"estudo": 0, "meta": 0, "questoes": 8, "acertos": 7, "constancia": 0}, "pos": 2, "delta": null}, {"id": "isabellalconde@gmail.com", "nome": "Isabella C.", "busca": "isabella conde", "pts": 14, "dias": 0, "questoes": 100, "horas_min": 0, "status": ["Q"], "detalhe": {"estudo": 0, "meta": 0, "questoes": 11, "acertos": 3, "constancia": 0}, "pos": 3, "delta": null}, {"id": "meusestudosvick@gmail.com", "nome": "Victoria L.", "busca": "victoria lima", "pts": 13, "dias": 0, "questoes": 65, "horas_min": 0, "status": ["Q"], "detalhe": {"estudo": 0, "meta": 0, "questoes": 8, "acertos": 5, "constancia": 0}, "pos": 4, "delta": null}, {"id": "yasminholandinha123@gmail.com", "nome": "Yasmin H.", "busca": "yasmin holanda", "pts": 5, "dias": 0, "questoes": 20, "horas_min": 13, "status": ["Q"], "detalhe": {"estudo": 0, "meta": 0, "questoes": 5, "acertos": 0, "constancia": 0}, "pos": 5, "delta": null}], "devendo": {"hoje": {"ts": "2026-11-09T22:00:49-03:00", "nomes": ["Aleson F.", "Amanda R.", "Ana V.", "Anna C.", "Anna G.", "Aysha", "Brunna F.", "Clarice P.", "Debora F.", "Evelyn B.", "Fernanda A.", "Gabriel M.", "Gabriela M.", "Gideão V.", "Giovanna V.", "Guilherme A.", "Isabela V.", "Jackson A.", "Jaqueline S.", "Kamila S.", "Kariny M.", "Larissa A.", "Larissa B.", "Laura M.", "Lohana S.", "Lorena S.", "Luciana A.", "Luíza A.", "Maria E.", "Maria P.", "Mariana S.", "Miquéias R.", "Natalia C.", "Natasha K.", "Pamela", "Paola R.", "Patrícia C.", "Raissa", "Rosilane V.", "Silas O.", "Thiago B.", "Victoria L.", "Yasmin H.", "Yasmin R."]}, "ontem": null}};
+const DOW = ["S","T","Q","Q","S","S","D"];
+const $ = (id) => document.getElementById(id);
+let view = "semana", showAll = false;
+
+function fmtD(iso){ const [y,m,d] = iso.split("-"); return `${d}/${m}`; }
+function fmtHora(iso){ const d = new Date(iso); return d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}); }
+function quando(iso){
+  const d = new Date(iso), hoje = new Date();
+  const k = (x) => x.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo"});
+  const ontem = new Date(hoje - 864e5);
+  if (k(d) === k(hoje)) return "hoje às " + fmtHora(iso);
+  if (k(d) === k(ontem)) return "ontem às " + fmtHora(iso);
+  return k(d) + " às " + fmtHora(iso);
+}
+function norm(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim(); }
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function chips(status, labels){
+  return `<div class="chips">${status.map((s,i)=>{
+    const cls = s==="M"?"M":s==="E"?"E":s==="Q"?"Q":s==="-"?"X":"F";
+    const txt = s==="-"?"✕":labels[i];
+    return `<i class="chip ${cls}" title="${labels[i]}">${txt}</i>`;
+  }).join("")}</div>`;
+}
+function delta(r){
+  if (r.delta === null || r.delta === undefined) return view==="semana" && DATA.leituras>2 ? `<span class="d new">novo</span>` : "";
+  if (r.delta > 0) return `<span class="d up">▲${r.delta}</span>`;
+  if (r.delta < 0) return `<span class="d down">▼${-r.delta}</span>`;
+  return `<span class="d eq">=</span>`;
+}
+function info(r){
+  const d = view==="semana" ? `${r.dias} ${r.dias===1?"dia":"dias"}, ` : "";
+  return `${d}${r.questoes.toLocaleString("pt-BR")} questões`;
+}
+function rows(){ return view==="semana" ? DATA.ranking_semana : DATA.ranking_ontem; }
+function labels(){ return view==="semana" ? DOW : [DOW[(new Date(DATA.ontem+"T12:00:00").getDay()+6)%7]]; }
+
+function renderPodium(list){
+  const el = $("podium");
+  if (!list.length){ el.innerHTML = ""; return; }
+  const order = [list[1], list[0], list[2]];
+  const cls = ["p2","p1","p3"], grad = ["g-silver","g-gold","g-bronze"], n = [2,1,3];
+  el.innerHTML = order.map((r,i)=>{
+    if (!r) return `<div class="pod ${cls[i]}"><div class="step" aria-hidden="true">${n[i]}</div></div>`;
+    return `<div class="pod ${cls[i]}" data-id="${esc(r.id)}">
+      <svg class="shield" viewBox="0 0 84 96" aria-hidden="true"><use href="#shield" fill="url(#${grad[i]})"/><path d="M42 12 70 21v23c0 18-12 31-28 39C26 75 14 62 14 44V21l28-9Z" fill="#14110b" opacity=".55"/><text x="42" y="60" text-anchor="middle" font-family="Big Shoulders Display, Impact, sans-serif" font-weight="900" font-size="38" fill="url(#${grad[i]})">${n[i]}</text></svg>
+      <div class="nm">${esc(r.nome)}</div>
+      <div class="pts num">${r.pts}<small>pts</small></div>
+      ${chips(r.status, labels())}
+      <div class="meta">${info(r)}</div>
+      <div class="step" aria-hidden="true">${n[i]}</div>
+    </div>`;
+  }).join("");
+}
+
+function card(r){
+  const d = r.detalhe;
+  // Acertos só aparece para quem atingiu 70% ou mais em algum dia (bônus > 0)
+  const det = [["Estudo",d.estudo],["Meta",d.meta],["Questões",d.questoes]]
+    .concat(d.acertos>0?[["Acertos 70%+",d.acertos]]:[])
+    .concat(view==="semana"?[["Constância",d.constancia]]:[])
+    .map(([k,v])=>`<span>${k} <b class="num">${v}</b></span>`).join("");
+  const h = Math.floor(r.horas_min/60), m = r.horas_min%60;
+  return `<article class="card ${r.pos<=10?"top10":""}" tabindex="0" data-id="${esc(r.id)}" data-k="${esc(r.busca)}" aria-expanded="false">
+    <div class="pos">${view==="semana" && DATA.largada ? "—" : r.pos+"º"} ${delta(r)}</div>
+    <div class="pts num">${r.pts}<small>pts</small></div>
+    <div class="nm">${esc(r.nome)}</div>
+    <div class="row">${chips(r.status, labels())}<span class="info">${info(r)}</span></div>
+    <div class="det" hidden>${det}<span>Horas líquidas <b class="num">${h}h${String(m).padStart(2,"0")}</b></span></div>
+  </article>`;
+}
+
+function renderDevendo(){
+  const dv = DATA.devendo && DATA.devendo[view==="semana"?"hoje":"ontem"];
+  $("devendo").hidden = !dv;
+  if (!dv) return;
+  $("dev-sub").textContent = view==="semana"
+    ? `Ainda não cumpriram a meta de hoje, até a leitura das ${fmtHora(dv.ts)}. Dá tempo de virar o jogo.`
+    : `Fecharam ${fmtD(DATA.ontem)} sem cumprir a meta do dia.`;
+  $("dev-list").innerHTML = dv.nomes.length
+    ? dv.nomes.map(n=>`<li>${esc(n)}</li>`).join("")
+    : `<li class="zero">Ninguém. Todo mundo cumpriu a meta.</li>`;
+}
+
+function render(){
+  renderDevendo();
+  const list = rows();
+  const q = norm($("q").value);
+  $("periodo").textContent = view==="semana"
+    ? `${fmtD(DATA.semana.ini)} — ${fmtD(DATA.semana.fim)}`
+    : `Ontem · ${fmtD(DATA.ontem)}`;
+  const larg = view==="semana" && DATA.largada;
+  $("largada").hidden = !larg;
+  renderPodium(q || larg ? [] : list.slice(0,3));
+  $("podium").hidden = !!q || larg;
+  let shown = q ? list.filter(r => r.busca.includes(q)) : (larg ? list : list.slice(3));
+  const limit = 27;
+  const cut = !q && !showAll && shown.length > limit;
+  if (cut) shown = shown.slice(0, limit);
+  $("more").hidden = !cut;
+  if (!list.length){
+    $("grid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>${view==="semana"?"A semana começou.":"Ninguém pontuou ontem."}</b><br>${DATA.leituras===0?"A primeira leitura da Tutory sai às "+proxTxt()+".":DATA.leituras<2?"A primeira leitura já foi feita. Os pontos aparecem a partir da próxima, às "+proxTxt()+".":"Os nomes aparecem assim que alguém pontuar."}</div>`;
+  } else if (q && !shown.length){
+    $("grid").innerHTML = `<div class="empty" style="grid-column:1/-1">Nenhum nome com “${esc($("q").value)}” pontuou ${view==="semana"?"nesta semana":"ontem"}.</div>`;
+  } else {
+    $("grid").innerHTML = shown.map(card).join("");
+    if (q && shown.length) $("grid").querySelectorAll(".card").forEach(c=>c.classList.add("hit"));
+  }
+}
+
+/* contador: horários fixos em Brasília (UTC-3) */
+const SP = -3 * 3600e3;
+function horarios(){ return (DATA && DATA.horarios) || [12, 20]; }
+function proximaLeitura(now){
+  const sp = new Date(now + SP);               // relógio de Brasília lido com getters UTC
+  const base = Date.UTC(sp.getUTCFullYear(), sp.getUTCMonth(), sp.getUTCDate()) - SP;
+  for (const h of horarios()){ const t = base + h*3600e3; if (t > now) return t; }
+  return base + 864e5 + horarios()[0]*3600e3;
+}
+function ultimaProgramada(now){
+  const sp = new Date(now + SP);
+  const base = Date.UTC(sp.getUTCFullYear(), sp.getUTCMonth(), sp.getUTCDate()) - SP;
+  let last = base - 864e5 + horarios()[horarios().length-1]*3600e3;
+  for (const h of horarios()){ const t = base + h*3600e3; if (t <= now) last = t; }
+  return last;
+}
+function proxTxt(){ return fmtHora(new Date(proximaLeitura(Date.now())).toISOString()); }
+function tick(){
+  const now = Date.now();
+  const last = ultimaProgramada(now);
+  const atual = DATA && DATA.atualizado ? new Date(DATA.atualizado).getTime() : 0;
+  const box = document.querySelector(".timer");
+  // a leitura leva alguns minutos para rodar: até 45 min depois do horário, mostra "atualizando"
+  if (atual < last && now - last < 45*60e3){
+    box.classList.add("busy");
+    $("cd-label").textContent = "Leitura das " + fmtHora(new Date(last).toISOString());
+    $("cd").textContent = "Atualizando agora…";
+    return;
+  }
+  box.classList.remove("busy");
+  const s = Math.max(0, Math.floor((proximaLeitura(now) - now)/1000));
+  const p = (n)=>String(n).padStart(2,"0");
+  $("cd-label").textContent = "Próxima atualização em";
+  $("cd").textContent = `${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`;
+}
+
+function init(){
+  $("times").innerHTML = horarios().map(h=>`<span>${String(h).padStart(2,"0")}:00</span>`).join("");
+  $("prox").textContent = proxTxt();
+  $("larg-h").textContent = proxTxt();
+  tick(); setInterval(tick, 1000);
+  if (!DATA){ $("grid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>Ranking em preparação.</b><br>A primeira leitura sai em breve.</div>`; return; }
+  if (DATA.atualizado) $("upd").textContent = "Última atualização " + quando(DATA.atualizado);
+  const setTab = (v)=>{ view=v; showAll=false;
+    $("tab-semana").setAttribute("aria-selected", v==="semana");
+    $("tab-ontem").setAttribute("aria-selected", v==="ontem"); render(); };
+  $("tab-semana").onclick = ()=>setTab("semana");
+  $("tab-ontem").onclick = ()=>setTab("ontem");
+  $("btn-more").onclick = ()=>{ showAll=true; render(); };
+  $("q").addEventListener("input", render);
+  const toggle = (c)=>{ const det=c.querySelector(".det"); det.hidden=!det.hidden; c.setAttribute("aria-expanded", !det.hidden); };
+  $("grid").addEventListener("click", e=>{ const c=e.target.closest(".card"); if(c) toggle(c); });
+  $("grid").addEventListener("keydown", e=>{ if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("card")){ e.preventDefault(); toggle(e.target);} });
+  render();
+}
+init();
+</script>
+</body></html>
